@@ -5,12 +5,12 @@
  * @prop {string} id The id of this Type
  * @prop {Array<TypeMeta>} [meta={}] Contains metadata for this Type that describes it characteristics
  * @prop {Array<Type>} [fields=[]] An array of sub-Types this Type has, usually present if a user-made type.
+ * @deprecated
  */
 class BaseType {
 	/**
 	 * Creates a new Type
 	 * @param {string} name A simple readable name for the type. Same name as shown in App View
-	 * @param {string} fiberyName The Type Fibery API identifier name 
 	 * @param {typeSchema} data The data from Fibery
 	 */
 	constructor(name, data) {
