@@ -1,0 +1,35 @@
+{
+  "name": "berryfi",
+  "version": "0.0.1",
+  "description": "Berryfi is a sweet little Fibery.io client based on the Unofficial-client, but takes a step further with simplification.",
+  "main": "./src/index.js",
+  "scripts": {
+    "doc": "jsdoc -c ./jsdoc.conf.json -t ./node_modules/docdash"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KeyboardRage/Berryfi.git"
+  },
+  "keywords": [
+    "Fibery",
+    "berryfi",
+    "client",
+    "API",
+    "wrapper",
+    "framework",
+    "productivity"
+  ],
+  "author": "Martin Haslien",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KeyboardRage/Berryfi/issues"
+  },
+  "homepage": "https://github.com/KeyboardRage/Berryfi",
+  "devDependencies": {
+    "docdash": "^1.2.0"
+  },
+  "dependencies": {
+    "fibery-unofficial": "^0.2.1",
+    "request-promise-native": "^1.0.7"
+  }
+}
