@@ -43,7 +43,7 @@ class Collection extends Map {
 	 */
 	find(fn) {
 		for (const [key, val] of this) {
-			if (search(val, key, this)) return val;
+			if (fn(val, key, this)) return val;
 		}
 		return undefined;
 	}
