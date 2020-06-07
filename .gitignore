@@ -3,3 +3,5 @@ node_modules/
 out/
 _img/
 _binned/
+jsdoc.conf.json
+keyboardrage.github.io/
