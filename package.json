@@ -1,6 +1,6 @@
 {
   "name": "berryfi",
-  "version": "0.1.0",
+  "version": "0.11.0",
   "description": "Berryfi is a sweet little Fibery.io client based on the Unofficial-client, but takes a step further with simplification.",
   "main": "./src/Berryfi.js",
   "scripts": {
@@ -29,6 +29,7 @@
     "docdash": "^1.2.0"
   },
   "dependencies": {
-    "got": "^11.3.0"
+    "got": "^11.3.0",
+    "uuid": "^8.1.0"
   }
 }

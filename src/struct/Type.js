@@ -8,15 +8,17 @@ const App = require("./App");
 /**
  * Represents a user-created Type
  * @extends {BaseType}
- * @prop {Collection<Entity>} entities A Collection of Entities that are derived from this Type
- * @prop {Collection<Field>} fields A Collection of Fields that belong to this Type
+ * @prop {Berryfi} berryfi The Berryfi client instance. Circular reference.
+ * @prop {Collection<UIUID, Entity>} entities A Collection of Entities that are derived from this Type
+ * @prop {Collection<UUID, Field>} fields A Collection of Fields that belong to this Type
  * @prop {App} parentApp The App this Type is a child of
  * @prop {string} name The Fibery name of this type. 'some/name'
  * @prop {object} meta The Fibery meta of this type
  * @prop {string} id The ID of this tupe. If App, ID is the app's label.
- * @prop {Berryfi} berryfi The Berryfi client instance
  * @prop {number} flag The flag value for this type
  * @prop {string} label A readable name, often the one shown in Fibery's UI
+ * @prop {Set} fieldNames A set of Fibery field names this type has
+ * @prop {Set} readOnly A set of Fibery field names that are 'read only' and cannot be modified
  * @prop {string} [type] The Fibery type. Only present in Fields.
  * @prop {Array<object>} [fields] The Fibery Fields array if this is a non-primitive Type.
  */
@@ -30,8 +32,20 @@ class Type extends BaseType {
 		if (!data) throw new Error("Missing data");
 		super(berryfi, data);
 
-		this.fields = new Collection();
+		this.fieldNames = new Set();
+		this.readOnly = new Set();
+		
+		/**
+		 * A Collection of Entities that are derived from this Type
+		 * @type {Collection<UIUID, Entity>}
+		 */
 		this.entities = new Collection();
+		//TODO: This conflict with top data
+		/**
+		 * A Collection of Fields that belong to this Type
+		 * @type {Collection<UUID, Field>}
+		 */
+		this.fields = new Collection();
 	}
 
 	/**
@@ -42,10 +56,18 @@ class Type extends BaseType {
 	append(input) {
 		if (!input.berryfi) input.berryfi = this.berryfi;
 		input.parentType = this;
-
+		// console.log(input)
 		if (input instanceof Field) {
+			// Update field names
+			this.fieldNames.add(input.name);
+			if (input.isReadOnly) this.readOnly.add(input.name);
+
 			this.fields.set(input.id, input);
 		} else if (input instanceof Entity) {
+			// Update field names
+			if (Object.keys(input.data).length) Object.keys(input.data).forEach(e => this.fieldNames.add(e));
+
+			if (input.isReadOnly) this.readOnly.add(input.name);
 			this.entities.set(input.id, input);
 		} else throw new TypeError(`Invalid type passed. Must be either a Field or an Entitiy, got '${input.constructor.name}'`);
 		
@@ -69,11 +91,12 @@ class Type extends BaseType {
 	 * }]);
 	 * console.log(res) // [{success:true, result: [Object]}, {success:true, result: [Object]}]
 	 * 
+	 * // Return array of entity references instead of API result
 	 * let rob = await contactType.insert({
 	 * 	"My App/Name": "Rob Robinson",
 	 * 	"My App/User email": "rob@robinson.net"
 	 * }, true);
-	 * console.log(rob.constructor.name, rob.field["User email"]) // "Entity" "rob@robinson.net"
+	 * console.log(rob[0].constructor.name, rob[0].field["User email"]) // "Entity" "rob@robinson.net"
 	 */
 	async insert(data, returnEntities=false) {
 		let r;
@@ -105,7 +128,7 @@ class Type extends BaseType {
 		let ents = Array();
 
 		r.forEach(res => {
-			const ent = new Entity(this.berryfi, res);
+			const ent = new Entity(this.berryfi, this, res);
 			ent.flag = ent.flag | this.berryfi.flags.userCreated | this.berryfi.flags.entity;
 
 			if (returnEntities) ents.push(ent);
@@ -114,6 +137,18 @@ class Type extends BaseType {
 		});
 
 		return returnEntities ? ents : r;
+	}
+
+	/**
+	 * Creates a new entity and adds it to cache. By later passing `entity.validate()` you can check if you are using invalid fields.
+	 * @param {object} data The data that makes up this new entity
+	 * @returns {Entity}
+	 */
+	makeEntity(data) {
+		var ent = new Entity(this.berryfi, this, data);
+		ent.flag = ent.flag|this.berryfi.flags.userCreated|this.berryfi.flags.entity;
+		this.entities.set(ent.id, ent);
+		return ent;
 	}
 };
 module.exports = Type;

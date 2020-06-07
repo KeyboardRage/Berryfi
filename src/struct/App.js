@@ -6,11 +6,11 @@ const Type = require("./Type");
 /**
  * Represents a user-created App
  * @extends {BaseType}
+ * @prop {Berryfi} berryfi The Berryfi client instance. Circular reference.
  * @prop {Collection<Type>} types A Collection of Types this App has
  * @prop {string} name The Fibery name of this type. 'some/name'
  * @prop {object} meta The Fibery meta of this type
  * @prop {string} id The ID of this tupe. If App, ID is the app's label.
- * @prop {Berryfi} berryfi The Berryfi client instance
  * @prop {number} flag The flag value for this type
  * @prop {string} label A readable name, often the one shown in Fibery's UI
  * @prop {string} [type] The Fibery type. Only present in Fields.

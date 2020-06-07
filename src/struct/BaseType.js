@@ -3,10 +3,10 @@ const Berryfi = require("../Berryfi");
 
 /**
  * Represents a native or primitive field in Fibery
+ * @prop {Berryfi} berryfi The Berryfi client instance. Circular reference.
  * @prop {string} name The Fibery name of this type. 'some/name'
  * @prop {object} meta The Fibery meta of this type
  * @prop {string} id The ID of this tupe. If App, ID is the app's label.
- * @prop {Berryfi} berryfi The Berryfi client instance
  * @prop {number} flag The flag value for this type
  * @prop {string} label A readable name, often the one shown in Fibery's UI
  * @prop {string} [type] The Fibery type. Only present in Fields.
@@ -108,7 +108,7 @@ class BaseType {
 	 * @returns {boolean}
 	 */
 	get isAuxiliary() {
-		return !!(this.berryfi.flags.auxiliaryField|this.berryfi.flags.auxiliaryType & this.flag);
+		return this.isAuxiliaryField||this.isAuxiliaryType;
 	}
 	/**
 	 * Boolean - Check if this is a primitive Fibery type
@@ -152,7 +152,7 @@ class BaseType {
 	 * @type {boolean}
 	 * @returns {boolean}
 	 */
-	get readOnly() {
+	get isReadOnly() {
 		return this.meta["fibery/readonly?"];
 	}
 	/**
@@ -328,6 +328,17 @@ class BaseType {
 	}
 
 	/**
+	 * Returns an object of true/false booleans based on the flag value
+	 * @type {object}
+	 * @returns {object}
+	 */
+	get booleans() {
+		let e = Object();
+		for(let key in this.berryfi.flags) e[key] = !!(this.flag & this.berryfi.flags[key]);
+		return e;
+	}
+
+	/**
 	 * Converts the data of this to a valid Fibery schema
 	 * @returns {object}
 	 * @public
@@ -351,13 +362,15 @@ class BaseType {
 		if (this.isApp) throw new Error(`Apps are not eligible for Fibery conversion as they are inheritly just a concept`);
 		let o = Object();
 
-		if (this.isEntity) return this.data;
+		if (this.isEntity) return JSON.parse(JSON.stringify(this.fields));
+		
 		if (this.isType || this.isAuxiliary) return {
 			"fibery/name": this.name,
 			"fibery/fields": this.fields || [],
 			"fibery/meta": this.meta || {},
 			"fibery/id": this.id
 		};
+
 		if (this.isField || this.isPrimitive) return {
 			"fibery/name": this.name,
 			"fibery/type": this.type,
