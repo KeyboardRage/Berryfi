@@ -3,7 +3,7 @@ Berryfi is a sweet little [Fibery.io](https://fibery.io) client focused on inter
 
 # Installation
 For now;  
-`npm install --save /KeyboardRage/Berryfi`  
+`npm install --save KeyboardRage/Berryfi`  
 
 # Setup
 ```js
